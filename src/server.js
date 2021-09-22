@@ -1,31 +1,26 @@
-const express = require('express');
-const cors = require('cors');
-const { ApolloServer } = require('apollo-server-express');
-const responseCachePlugin = require('apollo-server-plugin-response-cache');
+import express from 'express';
+import cors from 'cors';
+import { ApolloServer } from 'apollo-server-express';
+import { typeDefs, resolvers } from './schema.js';
 
 const PORT = 4000;
 
-const { typeDefs, resolvers } = require('./schema');
-
 const server = new ApolloServer({
-    typeDefs,
-    resolvers,
-    plugins: [responseCachePlugin()],
-    cacheControl: {
-        defaultMaxAge: 60 * 60,
-    },
-    playground: process.env.NODE_ENV !== 'production',
+  typeDefs,
+  resolvers,
 });
+
+await server.start();
 
 const app = express();
 app.use(cors());
 server.applyMiddleware({
-    app,
-    cors: {
-        origin: '*',
-    },
+  app,
+  cors: {
+    origin: '*',
+  },
 });
 
 app.listen({ port: PORT }, () =>
-    console.log(`Server ready at http://localhost:${PORT}${server.graphqlPath}`)
+  console.log(`Server ready at http://localhost:${PORT}${server.graphqlPath}`)
 );
